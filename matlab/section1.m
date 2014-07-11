@@ -1,5 +1,5 @@
 %% Open and show original image
-f = imread('originalColored.ppm');
+f = imread('original.ppm');
 imshow(f)
 
 %% Gets information about the file

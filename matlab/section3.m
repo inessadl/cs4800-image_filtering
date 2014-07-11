@@ -1,5 +1,5 @@
 %% Reads the original image
-f = imread('originalColored.ppm');
+f = imread('original.ppm');
 
 %% Creates a copy of the image
 imwrite(uint8(f), 'img_out2.ppm');
