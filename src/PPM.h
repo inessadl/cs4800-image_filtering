@@ -23,7 +23,7 @@ typedef struct {
 	PPMGrayPixel *data;
 } PPMGrayImage;
 
-#define CREATOR "MJFINDLER"
+#define CREATOR “IDLUERCE”
 #define RGB_COMPONENT_COLOR 255
 
 PPMImage *readPPM(const char *filename);
