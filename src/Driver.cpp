@@ -67,6 +67,13 @@ int main(){
 	*/
 
 
+	//for (int i = 0; i < x * y; i++) {
+	//img->data[i].gray = GrayImg->data[i].red;
+	//...
+
+	//}
+
+
 	printf("Sucessully executed. Press enter...");
 	getchar();
 }

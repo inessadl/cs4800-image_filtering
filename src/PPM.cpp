@@ -333,21 +333,28 @@ void changeToGrayScale(PPMImage *img) {
 	}
 }
 
+
 PPMGrayImage * ConvertToGrayFromColorImage(PPMImage *img) {
 
 	PPMGrayImage *img2;
 	img2 = CreateEmptyGrayImageFromColorImage(img);
-	PPMGrayPixel a, b;
 
-	/* testing */
+
 	for (int i=0; i < img2->x*img2->y; i++) {
 
+		printf("%d\n", &i);
+		/*
 		if (i % 2 == 0) {
-			img2->data = 0;
+			img2->data[i].gray = 0;
 		}
 		else {
-			img2->data = 0; // PPMGrayPixel
+			img2->data[i].gray = 255;
 		}
+		*/
+		if (i > 255 && i < 1350) {
+			img2->data[i].gray = 255;
+		}
+
 
 	}
 
