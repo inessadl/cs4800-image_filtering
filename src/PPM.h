@@ -1,6 +1,4 @@
-/***
-Structures and Function Prototypes for PPM formatted images
-***/
+/* Structures and Function Prototypes for PPM formatted images */
 
 #ifndef PPM_H
 #define PPM_H
