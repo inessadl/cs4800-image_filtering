@@ -1,4 +1,6 @@
-/* Structures and Function Prototypes for PPM formatted images */
+/***
+Structures and Function Prototypes for PPM formatted images
+***/
 
 #ifndef PPM_H
 #define PPM_H
@@ -33,6 +35,11 @@ void writeGrayPPM(const char *filename, PPMGrayImage *img);
 PPMImage *CreateEmptyImage(PPMImage *img);
 PPMGrayImage *CreateEmptyGrayImage(PPMGrayImage *img);
 PPMGrayImage *CreateEmptyGrayImageFromColorImage(PPMImage *img);
+
+
+PPMGrayImage *ConvertToGrayFromColorImage(PPMImage *img);
+PPMImage * mask1(PPMImage *img);
+PPMImage * mask2(PPMImage *img);
 
 #endif
 

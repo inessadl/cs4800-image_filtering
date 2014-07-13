@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #include "PPM.h"
 
+
+
 PPMImage *readPPM(const char *filename)
 {
 	char buff[16];
@@ -240,7 +242,7 @@ PPMGrayImage *CreateEmptyGrayImage(PPMGrayImage *img)
 {
 	PPMGrayImage *target;
 
-	//alloc memory form image
+	//alloc memory for image
 	target = (PPMGrayImage *)malloc(sizeof(PPMGrayImage));
 	if (!target) {
 		fprintf(stderr, "Unable to allocate memory\n");
@@ -260,7 +262,7 @@ PPMGrayImage *CreateEmptyGrayImageFromColorImage(PPMImage *img)
 {
 	PPMGrayImage *target;
 
-	//alloc memory form image
+	//alloc memory for image
 	target = (PPMGrayImage *)malloc(sizeof(PPMGrayImage));
 	if (!target) {
 		fprintf(stderr, "Unable to allocate memory\n");
@@ -274,4 +276,81 @@ PPMGrayImage *CreateEmptyGrayImageFromColorImage(PPMImage *img)
 	target->data = (PPMGrayPixel*)malloc(img->x * img->y * sizeof(PPMGrayPixel));
 
 	return target;
+}
+
+
+// can't return void, should return an image
+PPMImage * mask1(PPMImage *img){
+
+	int i;
+	int average;
+
+	/* USING GRAYSCALE JUST TO TEST THE PARAMETERS */
+
+	/* Makes a copy of the image to apply the filter and don't lose data */
+
+	if (img){
+
+		/* Go through each pixel of the image */
+		for (i = 0; i < img->x*img->y; i++) {
+
+			/* Calculates average of the values in each channel (rgb) and
+			set the pixels with the new value */
+			average = (img->data[i].red + img->data[i].green + img->data[i].blue) / 3;
+
+			img->data[i].red = average;
+			img->data[i].green = average;
+			img->data[i].blue = average;
+		}
+		return img;
+	}
+}
+
+PPMImage * mask2(PPMImage *img) {
+
+	return img;
+}
+
+/* DELETE THIS FUNCTION*/ /* Function to convert a RGB image in a Grayscale - uses the average method */
+void changeToGrayScale(PPMImage *img) {
+	int i;
+	int average;
+
+	if (img) {
+
+		/* Go through each pixel of the image */
+		for (i = 0; i < img->x*img->y; i++) {
+
+			/* Calculates average of the values in each channel (rgb) and
+			set the pixels with the new value */
+			average = (img->data[i].red + img->data[i].green + img->data[i].blue) / 3;
+
+			img->data[i].red = average;
+			img->data[i].green = average;
+			img->data[i].blue = average;
+
+		}
+	}
+}
+
+PPMGrayImage * ConvertToGrayFromColorImage(PPMImage *img) {
+
+	PPMGrayImage *img2;
+	img2 = CreateEmptyGrayImageFromColorImage(img);
+	PPMGrayPixel a, b;
+
+	/* testing */
+	for (int i=0; i < img2->x*img2->y; i++) {
+
+		if (i % 2 == 0) {
+			img2->data = 0;
+		}
+		else {
+			img2->data = 0; // PPMGrayPixel
+		}
+
+	}
+
+
+	return img2;
 }
