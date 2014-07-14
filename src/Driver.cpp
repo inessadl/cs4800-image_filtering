@@ -20,8 +20,8 @@ void changeColorPPM(PPMImage *img)
 
 
 int main(){
-	PPMImage *image, *image2, *image3, *image4, *image5, *image6, *image7;
-	PPMGrayImage *image11;
+	PPMImage *image, *image1, *image2, *image3, *image4, *image5, *image6, *image7;
+	PPMGrayImage *image10, *image11, *image12;
 
 	/* just for test, comment or delete after that */
 	image = readPPM("original.ppm");
@@ -30,22 +30,30 @@ int main(){
 
 
 	/* 3 Creates an empty grayscale ppm and apply the grayscale formula in the original image */
-	//image3 = CreateEmptyGrayImage;
-	image11 = CreateEmptyGrayImageFromColorImage(image);
-	// convert here?
-	image11 = ConvertToGrayFromColorImage(image);
-	writeGrayPPM("original-grayscale.ppm", image11);
+	image10 = CreateEmptyGrayImageFromColorImage(image);
+	image10 = ConvertToGrayFromColorImage(image);
+	writeGrayPPM("original-grayscale.ppm", image10);
+
 
 	/* 4 Creates a new image and copies the original */
+	/* Applies the first mask in the colored image */
+	image1 = CreateEmptyImage(image);
+	image1 = readPPM("original.ppm");
+	image1 = mask1(image);
+	writePPM("mask1-color.ppm", image1);
+
+	/* Applies the first mask in the grayscale image */
+	image11 = CreateEmptyGrayImage(image10);
+	//image11 = mask1(image10);
+
+
+	/* Applies the second mask in the colored image */
 	image2 = CreateEmptyImage(image);
 	image2 = readPPM("original.ppm");
-	writePPM("test.ppm", image2);
+	image2 = mask2(image);
+	writePPM("mask2-color.ppm", image2);
 
-	/* Applies the first mask in the colored image */
-	image2 = mask1(image);
-	writePPM("mask1-color.ppm", image2);
-
-	//image2 = mask1(image);
+	/* Applies the second mask in the grayscale image */
 
 	/* 
 	1) open original
