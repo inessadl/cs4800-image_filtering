@@ -278,6 +278,23 @@ PPMGrayImage *CreateEmptyGrayImageFromColorImage(PPMImage *img)
 	return target;
 }
 
+PPMGrayImage * ConvertToGrayFromColorImage(PPMImage *img) {
+
+	PPMGrayImage *img2;
+	img2 = CreateEmptyGrayImageFromColorImage(img);
+
+
+	for (int i = 0; i < img2->x*img2->y; i++) {
+
+		/*  Formula for luminosity: 0.21 R + 0.72 G + 0.07 B.*/
+		img2->data[i].gray = (img->data[i].red * 0.21) + (img->data[i].green * 0.72) + (img->data[i].blue * 0.07);
+
+
+	}
+
+
+	return img2;
+}
 
 /* IT'S RETURNING A PPMIMAGE - SEE A SOLUTION TO GRAY IMAGE*/
 
@@ -285,7 +302,7 @@ PPMGrayImage *CreateEmptyGrayImageFromColorImage(PPMImage *img)
 	| 1 | 2 | 1 |
 	| 2 | 4 | 2 |
 	| 1 | 2 | 1 | */
-PPMImage * mask1(PPMImage *img){
+PPMImage * Filter1Color(PPMImage *img){
 
 	int gred, ggreen, gblue;
 	int i, j;
@@ -875,7 +892,7 @@ PPMImage * mask1(PPMImage *img){
 	| -1 | -1 | -1 |
 	| -1 |  8 | -1 |
 	| -1 | -1 | -1 | */
-PPMImage * mask2(PPMImage *img) {
+PPMImage * Filter2Color(PPMImage *img) {
 
 	int gred, ggreen, gblue;
 	int i, j;
@@ -1336,44 +1353,635 @@ PPMImage * mask2(PPMImage *img) {
 	return img2;
 }
 
-/* DELETE THIS FUNCTION*/ /* Function to convert a RGB image in a Grayscale - uses the average method */
-void changeToGrayScale(PPMImage *img) {
 
-	int i;
-	int average;
+PPMGrayImage *Filter1Gray(PPMGrayImage *img) {
 
-	if (img) {
+	int ggray;
+	int i, j;
+	int x = img->x;
+	int y = img->y;
+
+	/* Makes a copy of the image to apply the filter and don't lose data */
+	PPMGrayImage *img2;
+	img2 = CreateEmptyGrayImage(img);
+
+
+
+	if (img){
 
 		/* Go through each pixel of the image */
 		for (i = 0; i < img->x*img->y; i++) {
 
-			/* Calculates average of the values in each channel (rgb) and
-			set the pixels with the new value */
-			average = (img->data[i].red + img->data[i].green + img->data[i].blue) / 3;
+			/* #1 TOP-LEFT corner
+			*
+			* Multiplies the pixel by 4, the pixels with distance 1 from it are mutiplied by 2,
+			* the pixels with distance 2 are supposed to be multiplied by 1, but any operation is
+			* done. Once that is in the border, not all pixels were considered. The result of the
+			* operation is divided by 8.
+			*/
+			if (i == 0) {
 
-			img->data[i].red = average;
-			img->data[i].green = average;
-			img->data[i].blue = average;
+				j = i;
+
+				ggray = (
+					(img->data[j].gray * 4) +
+
+					(img->data[j + 1].gray * 2) +
+					(img->data[j + x].gray * 2) +
+
+					img->data[j + (x + 1)].gray
+					) / 8;
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+			}
+
+
+			/* #2 TOP
+			*
+			* Multiplies the pixel by 4, the pixels with distance 1 from it are mutiplied by 2,
+			* the pixels with distance 2 are supposed to be multiplied by 1, but any operation is
+			* done. Once that is in the border, not all pixels were considered. The result of the
+			* operation is divided by 12.
+			*/
+			else if (i > 0 && i < (x - 1)) {
+
+				j = i;
+
+				ggray = (
+					(img->data[j].gray * 4) +
+
+					(img->data[j - 1].gray * 2) +
+					(img->data[j + 1].gray * 2) +
+					(img->data[j + x].gray * 2) +
+
+					img->data[j + x - 1].gray +
+					img->data[j + x + 1].gray
+					) / 12;
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+			}
+
+			/* # 3 TOP-RIGHT corner
+			*
+			* Multiplies the pixel by 4, the pixels with distance 1 from it are mutiplied by 2,
+			* the pixels with distance 2 are supposed to be multiplied by 1, but any operation is
+			* done. Once that is in the border, not all pixels were considered. The result of the
+			* operation is divided by 8.
+			*/
+			else if (i == (x - 1)) {
+
+				j = i;
+
+				/* RED channel of the pixel */
+				ggray = (
+					(img->data[j].gray * 4) +
+
+					(img->data[j - 1].gray * 2) +
+					(img->data[j + x].gray * 2) +
+
+					img->data[j + (x - 1)].gray
+					) / 8;
+
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+
+			}
+			/* #4 BOTTOM-RIGHT corner
+			*
+			* Multiplies the pixel by 4, the pixels with distance 1 from it are mutiplied by 2,
+			* the pixels with distance 2 are supposed to be multiplied by 1, but any operation is
+			* done. Once that is in the border, not all pixels were considered. The result of the
+			* operation is divided by 8.
+			*/
+			else if (i == (x * y) - 1) {
+
+				j = i;
+
+
+				/* RED channel of the pixel */
+				ggray = (
+					(img->data[j].gray * 4) +
+
+					(img->data[j - 1].gray * 2) +
+					(img->data[j - x].gray * 2) +
+
+					img->data[j - x - 1].gray
+					) / 8;
+
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+			}
+
+
+			/* #5 BOTTOM-LEFT corner
+			*
+			* Multiplies the pixel by 4, the pixels with distance 1 from it are mutiplied by 2,
+			* the pixels with distance 2 are supposed to be multiplied by 1, but any operation is
+			* done. Once that is in the border, not all pixels were considered. The result of the
+			* operation is divided by 8.
+			*/
+			else if (i == (x*y) - x) {
+
+				j = i;
+
+				/* RED channel of the pixel */
+				ggray = (
+					(img->data[j].gray * 4) +
+					(img->data[j + 1].gray * 2) +
+					(img->data[j - x].gray * 2) +
+
+					img->data[j - (x + 1)].gray
+					) / 8;
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+			}
+
+
+			/* #6 BOTTOM
+			*
+			* Multiplies the pixel by 4, the pixels with distance 1 from it are mutiplied by 2,
+			* the pixels with distance 2 are supposed to be multiplied by 1, but any operation is
+			* done. Once that is in the border, not all pixels were considered. The result of the
+			* operation is divided by 12.
+			*/
+			else if (i >= (x*y) - x && i < (x * y) - 1) {
+
+				j = i;
+
+				/* RED channel of the pixel */
+				ggray = (
+					(img->data[j].gray * 4) +
+
+					(img->data[j - 1].gray * 2) +
+					(img->data[j + 1].gray * 2) +
+					(img->data[j - x].gray * 2) +
+
+					img->data[j - x - 1].gray +
+					img->data[j - x + 1].gray
+					) / 12;
+
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+
+			}
+
+
+			/* #7 LEFT */
+			else if (i%x == 0) {
+				j = i;
+
+				/* RED channel of the pixel */
+				ggray = (
+					(img->data[j].gray * 4) +
+
+					(img->data[j + 1].gray * 2) +
+					(img->data[j + x].gray * 2) +
+					(img->data[j - x].gray * 2) +
+
+					img->data[j - x + 1].gray +
+					img->data[j - x + 1].gray
+					) / 12;
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+			}
+
+
+			/* #8 RIGHT */
+
+			/* Multiplies the pixel by 4, the pixels with distance 1 from it are mutiplied by 2,
+			the pixels with distance 2 are supposed to be multiplied by 1, but any operation is
+			done. Once that is in the border, not all pixels were considered. The result of the
+			operation is divided by 12. */
+			else if ((i + 1) % x == 0) {
+
+
+
+				j = i;
+
+				/* RED channel of the pixel */
+				ggray = (
+					(img->data[j].gray * 4) +
+
+					(img->data[j - 1].gray * 2) +
+					(img->data[j - x].gray * 2) +
+					(img->data[j + x].gray * 2) +
+
+					img->data[j - x - 1].gray
+					+ img->data[j + (x - 1)].gray
+					) / 12;
+
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+
+			}
+
+
+			/* #9 MIDDLE
+			*
+			* Multiply the pixel by 4, the pixels with distance 1 from it are mutiplied by 2,
+			* the pixels with distance 2 are supposed to be multiplied by 1, but any operation is
+			* done.The result is divided by 15.
+			*/
+			else {
+
+				j = i;
+
+				/* RED channel of the pixel */
+				ggray = (
+					(img->data[j].gray * 4) +
+
+					(img->data[j - x].gray * 2) +
+					(img->data[j + x].gray * 2) +
+					(img->data[j + 1].gray * 2) +
+					(img->data[j - 1].gray * 2) +
+
+					img->data[j + (x - 1)].gray +
+					img->data[j + (x + 1)].gray +
+					img->data[j - x - 1].gray +
+					img->data[j - x + 1].gray
+
+					) / 15;
+
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+			}
+		}
+	}
+	return img2;
+}
+
+PPMGrayImage *Filter2Gray(PPMGrayImage *img) {
+
+	int ggray;
+	int i, j;
+	int x = img->x;
+	int y = img->y;
+
+	/* Makes a copy of the image to apply the filter and don't lose data */
+	PPMGrayImage *img2;
+	img2 = CreateEmptyGrayImage(img);
+
+	if (img){
+
+		/* Go through each pixel of the image */
+		for (i = 0; i < img->x*img->y; i++){
+
+			// # 1 TOP-LEFT corner
+			if (i == 0) {
+
+
+				j = i;
+
+				/* The pixel is multiplied by 3 and the result is subtracted by its neighbors */
+
+			
+				ggray = img->data[j].gray * 3 - (img->data[j + 1].gray +
+					img->data[j + x].gray +
+					img->data[j + (x + 1)].gray
+					);
+
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+
+			}
+
+
+
+			// # 2 TOP
+			else if (i > 0 && i < (x - 1)) {
+
+				j = i;
+
+				/* The pixel is multiplied by 5 and the result is subtracted by its neighbors */
+
+				/* RED channel of the pixel */
+				ggray = img->data[j].gray * 5 - (img->data[j - 1].gray +
+					img->data[j + 1].gray +
+					img->data[j + x].gray +
+					img->data[j + x - 1].gray +
+					img->data[j + x + 1].gray
+					);
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+			}
+
+
+
+			// # 3 TOP-RIGHT corner
+			else if (i == (x - 1)) {
+
+				j = i;
+
+				/* The pixel is multiplied by 3 and the result is subtracted by its neighbors */
+
+				/* RED channel of the pixel */
+				ggray = img->data[j].gray * 3 - (img->data[j - 1].gray +
+					img->data[j + x].gray +
+					img->data[j + (x - 1)].gray
+					);
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+			}
+
+
+
+			// # 4 BOTTOM-RIGHT corner
+			else if (i == (x * y) - 1) {
+
+				j = i;
+
+				/* The pixel is multiplied by 3 and the result is subtracted by its neighbors */
+
+				/* RED channel of the pixel */
+				ggray = img->data[j].gray * 3 - (img->data[j - 1].gray +
+					img->data[j - x].gray +
+					img->data[j - x - 1].gray
+					);
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+			}
+
+
+
+			// # 5 BOTTOM-LEFT corner
+			else if (i == (x*y) - x) {
+
+
+				j = i;
+
+				/* The pixel is multiplied by 3 and the result is subtracted by its neighbors */
+
+				/* RED channel of the pixel */
+				ggray = img->data[j].gray * 3 - (img->data[j + 1].gray +
+					img->data[j - x].gray +
+					img->data[j - (x + 1)].gray
+					);
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+
+			}
+
+
+
+			// # 6 BOTTOM
+			else if (i >= (x*y) - x && i < (x * y) - 1) {
+
+				j = i;
+
+				/* The pixel is multiplied by 5 and the result is subtracted by its neighbors */
+
+				/* RED channel of the pixel */
+				ggray = img->data[j].gray * 5 - (img->data[j - 1].gray +
+					img->data[j + 1].gray +
+					img->data[j - x].gray +
+					img->data[j - x - 1].gray +
+					img->data[j - x + 1].gray
+					);
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+
+			}
+
+
+
+			// # 7 LEFT 
+			else if (i%x == 0) {
+
+
+				j = i;
+
+				/* The pixel is multiplied by 5 and the result is subtracted by its neighbors */
+
+				/* RED channel of the pixel */
+				ggray = img->data[j].gray * 5 - (img->data[j + 1].gray +
+					img->data[j + x].gray +
+					img->data[j - x + 1].gray +
+					img->data[j - x].gray +
+					img->data[j - x + 1].gray
+					);
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+
+			}
+
+
+
+			// # 8 RIGHT
+			else if ((i + 1) % x == 0) {
+
+				j = i;
+
+
+				/* The pixel is multiplied by 5 and the result is subtracted by its neighbors */
+
+				/* RED channel of the pixel */
+				ggray = img->data[j].gray * 5 - (img->data[j - 1].gray +
+					img->data[j - x].gray +
+					img->data[j - x - 1].gray +
+					img->data[j + x].gray +
+					img->data[j + (x - 1)].gray
+					);
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+			}
+
+
+			// # MIDDLE
+			else {
+
+				j = i;
+
+				/* The pixel is multiplied by 8 and the result is subtracted by its neighbors */
+
+				/* RED channel of the pixel */
+				ggray = img->data[j].gray * 8 - (img->data[j + 1].gray +
+					img->data[j - 1].gray +
+					img->data[j + x].gray +
+					img->data[j + (x - 1)].gray +
+					img->data[j + (x + 1)].gray +
+					img->data[j - x].gray +
+					img->data[j - x - 1].gray +
+					img->data[j - x + 1].gray
+					);
+
+
+				/* If a result is larger than the range, adjusts to the maximum value (255) */
+				if (ggray > 255)		{ ggray = 255; }
+
+				/* If a result is smaller than the range, adjusts to the minimum value (0) */
+				if (ggray < 0)		{ ggray = 0; }
+
+				/* After adjusted, the value is set on each channel */
+				img2->data[j].gray = ggray;
+
+			}
 
 		}
 	}
-}
-
-
-PPMGrayImage * ConvertToGrayFromColorImage(PPMImage *img) {
-
-	PPMGrayImage *img2;
-	img2 = CreateEmptyGrayImageFromColorImage(img);
-	
-
-	for (int i=0; i < img2->x*img2->y; i++) {
-
-		/*  Formula for luminosity: 0.21 R + 0.72 G + 0.07 B.*/
-		img2->data[i].gray = (img->data[i].red * 0.21) + (img->data[i].green * 0.72) + (img->data[i].blue * 0.07);
-
-
-	}
-	
-
 	return img2;
 }
+
+

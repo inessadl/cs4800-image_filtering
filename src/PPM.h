@@ -38,8 +38,12 @@ PPMGrayImage *CreateEmptyGrayImageFromColorImage(PPMImage *img);
 
 PPMGrayImage *ConvertToGrayFromColorImage(PPMImage *img);
 
-PPMImage * mask1(PPMImage *img);
-PPMImage * mask2(PPMImage *img);
+PPMImage * Filter1Color(PPMImage *img);
+PPMImage * Filter2Color(PPMImage *img);
+
+PPMGrayImage *Filter1Gray(PPMGrayImage *img);
+PPMGrayImage *Filter2Gray(PPMGrayImage *img);
+
 
 #endif
 
