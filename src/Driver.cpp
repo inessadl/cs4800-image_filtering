@@ -34,6 +34,9 @@ int main(){
 	image10 = ConvertToGrayFromColorImage(image);
 	writeGrayPPM("converted-grayscale.ppm", image10);
 
+	printf("Sucessully executed. Press enter...");
+	getchar();
+
 	/* 4 Creates a new image and copies the original */
 	/* Applies the first mask in the colored image */
 	image1 = CreateEmptyImage(image);
@@ -41,12 +44,17 @@ int main(){
 	image1 = Filter1Color(image);
 	writePPM("filter1-color.ppm", image1);
 
+	printf("Sucessully executed. Press enter...");
+	getchar();
+
 	/* Applies the first mask in the grayscale image */
 	image11 = CreateEmptyGrayImage(image10);
-	//image11 = readGrayPPM("original-grayscale.ppm");
-	//image11 = Filter1Gray(image10);
-	//writeGrayPPM("filter1-gray.ppm", image11);
+	image11 = readGrayPPM("converted-grayscale.ppm");
+	image11 = Filter1Gray(image10);
+	writeGrayPPM("filter1-gray.ppm", image11);
 
+	printf("Sucessully executed. Press enter...");
+	getchar();
 
 	/* Applies the second mask in the colored image */
 	image2 = CreateEmptyImage(image);
@@ -54,12 +62,17 @@ int main(){
 	image2 = Filter2Color(image);
 	writePPM("filter2-color.ppm", image2);
 
+	printf("Sucessully executed. Press enter...");
+	getchar();
+
 	/* Applies the second mask in the grayscale image */
 	image12 = CreateEmptyGrayImage(image10);
-	//image12 = readGrayPPM("original-grayscale.ppm");
-	//image12 = Filter2Gray(image10);
-	//writeGrayPPM("filter2-gray.ppm", image12);
+	image12 = readGrayPPM("converted-grayscale.ppm");
+	image12 = Filter2Gray(image10);
+	writeGrayPPM("filter2-gray.ppm", image12);
 
+	printf("Sucessully executed. Press enter...");
+	getchar();
 
 	/* 
 	1) open original

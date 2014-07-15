@@ -104,7 +104,7 @@ PPMGrayImage *readGrayPPM(const char *filename)
 	}
 
 	//check the image format
-	if (buff[0] != 'P' || buff[1] == '5') {
+	if (buff[0] != 'P' || buff[1] != '5') {
 		fprintf(stderr, "Invalid image format (must be 'P5')\n");
 		exit(1);
 	}
